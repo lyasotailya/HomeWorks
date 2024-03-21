@@ -31,7 +31,6 @@ class Stock(Base):
     shop = relationship(Shop, backref="shop_stock")
 
 
-
 class Sale(Base):
     __tablename__ = 'sale'
 

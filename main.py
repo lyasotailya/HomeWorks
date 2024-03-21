@@ -19,24 +19,33 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-req = session.query(
-    Publisher.name,
-    Book.title,
-    Shop.name,
-    Sale.price,
-    Sale.count,
-    Sale.date_sale
-).all().join(
-    Book, Book.id_publisher == Publisher.id
-             ).join(
-    Stock, Stock.id_book == Book.id
-).join(
-    Shop, Shop.id == Stock.id_shop
-).join(
-    Sale, Sale.id_stock == Stock.id
-)
-print(req)
+def get_shops(pub: str):
+    req = session.query(
+        Publisher,
+        Book,
+        Stock,
+        Shop,
+        Sale
+    ).select_from(
+        Shop
+    ).join(
+        Stock, Stock.id_book == Book.id
+    ).join(
+        Book, Book.id == Stock.id_Book
+    ).join(
+        Sale, Sale.id_stock == Stock.id
+    )
+    if pub.isdigit():
+        data = req.filter(Publisher.name == int(pub)).all()
+    else:
+        data = req.filter(Publisher.name == pub).all()
+    for book, shop, price, date in data:
+        print(f"{book: <40} | {shop: <10} | {price: <8} | {date.strftime('%d-%m-%Y')}")
+
 
 session.close()
 
 
+if __name__ == '__main__':
+    publisher = input("Введите имя или id публициста")
+    get_shops(publisher)
